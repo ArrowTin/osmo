@@ -20,8 +20,16 @@
                     <span class="hidden md:inline">Hi, Admin</span>
                 </button>
                 <div x-show="open" @click.outside="open=false" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded shadow py-2">
-                    <a href="#" class="block px-4 py-1 hover:bg-gray-100 dark:hover:bg-gray-700">Profile</a>
-                    <a href="#" class="block px-4 py-1 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</a>
+                    <div class="hidden md:flex items-center gap-3">
+                        <span class="text-sm text-gray-600">👋 {{ Auth::user()->name ?? 'Siswa' }}</span>
+                        <form action="{{ route('logout') }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" 
+                                    class="text-sm text-red-600 font-semibold hover:text-red-700 transition-colors">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
