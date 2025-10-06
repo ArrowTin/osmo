@@ -8,6 +8,7 @@ use App\Models\Question;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class AdminSeeder extends Seeder
 {
@@ -19,6 +20,10 @@ class AdminSeeder extends Seeder
         Category::factory(10)->create();
         Question::factory(30)->create();
         User::factory(10)->create();
-        // Exam::factory(5)->create();
+        User::create([
+            'name' => 'Admin',
+            'username' => 'admin',
+            'password' => Hash::make('password'),
+        ]);
     }
 }
