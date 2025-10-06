@@ -13,8 +13,8 @@ Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
 
-// 
-Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+// 'auth:sanctum', 'role:admin'
+Route::prefix('admin')->middleware([])->group(function () {
     Route::apiResource('categories', CategoryController::class);
     Route::apiResource('questions', QuestionController::class);
     Route::apiResource('users', UserController::class);
