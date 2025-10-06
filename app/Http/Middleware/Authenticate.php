@@ -4,20 +4,24 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class Authenticate
 {
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, ...$guards): Response
     {
-        // Jika belum login
-        if (!auth()->check()) {
-            // Jika route API → kirim JSON
-            if ($request->expectsJson()) {
-                return response()->json(['message' => 'Unauthorized. Please login first.'], 401);
+        // Coba autentikasi dengan semua guard yang disediakan (misal: web, api)
+        if (!Auth::guard($guards[0] ?? 'web')->check()) {
+            // Jika request dari API → balas JSON
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized. Please login first.'
+                ], 401);
             }
 
-            // Jika route web → redirect ke login
+            // Jika request dari web → redirect ke login page
             return redirect()->route('login');
         }
 
