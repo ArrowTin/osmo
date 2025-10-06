@@ -1,0 +1,9 @@
+.translate-x-full {
+    transition: transform 0.3s ease;
+  }
+  .dark::-webkit-scrollbar {
+    width: 6px;
+  }
+  .dark::-webkit-scrollbar-thumb {
+    background: #4b5563;
+  }
