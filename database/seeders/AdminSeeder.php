@@ -24,6 +24,7 @@ class AdminSeeder extends Seeder
             'name' => 'Admin',
             'username' => 'admin',
             'password' => Hash::make('password'),
+            'role'      => 'admin'
         ]);
     }
 }
