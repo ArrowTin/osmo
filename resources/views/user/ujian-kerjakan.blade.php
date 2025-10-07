@@ -3,7 +3,7 @@
 @section('content')
 <form action="{{ route('students.ujian.selesai',$exam->id) }}" method="POST" class="space-y-4">
     @csrf
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between flex-wrap gap-2">
         <h1 class="text-xl font-bold">{{ $exam->name }}</h1>
         <span id="countdown" class="bg-red-100 text-red-700 px-3 py-1 rounded text-sm"></span>
     </div>
@@ -22,17 +22,18 @@
             $opsiList = is_array($soal->options) ? $soal->options : json_decode($soal->options, true);
         @endphp
 
-        <div class="grid grid-cols-2 gap-2">
+        {{-- Responsive: vertikal di mobile, 2 kolom di md+ --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             @foreach($opsiList as $i => $opsi)
-            <label class="cursor-pointer">
+            <label class="cursor-pointer block">
                 <input type="radio" name="jawaban[{{ $soal->id }}]" value="{{ $opsi }}" class="sr-only peer">
-                
+
                 {{-- Jika opsi berupa gambar --}}
                 @if(Str::endsWith($opsi, ['.jpg','.png','.jpeg','.gif']))
-                    <img src="{{ Storage::url($opsi) }}" class="peer-checked:ring-4 peer-checked:ring-indigo-400 rounded border">
+                    <img src="{{ Storage::url($opsi) }}" class="peer-checked:ring-4 peer-checked:ring-indigo-400 rounded border w-full object-contain">
                 @else
                     {{-- Jika opsi berupa teks atau rumus --}}
-                    <div class="p-2 border rounded peer-checked:ring-4 peer-checked:ring-indigo-400 bg-gray-50">
+                    <div class="p-2 border rounded peer-checked:ring-4 peer-checked:ring-indigo-400 bg-gray-50 text-center md:text-left">
                         {!! $opsi !!}
                     </div>
                 @endif
@@ -42,12 +43,12 @@
     </div>
     @endforeach
 
-
-
-    <button class="w-full bg-indigo-600 text-white py-3 rounded hover:bg-indigo-700">Selesai & Kirim</button>
+    <button class="w-full bg-indigo-600 text-white py-3 rounded hover:bg-indigo-700 transition">
+        Selesai & Kirim
+    </button>
 </form>
 
-<!-- Timer countdown (opsional) -->
+<!-- Timer countdown -->
 <script>
 const durasi = {{ $exam->duration * 60 }};
 let s = durasi;
@@ -56,7 +57,11 @@ const interval = setInterval(()=>{
     const m = String(Math.floor(s/60)).padStart(2,0);
     const sec = String(s%60).padStart(2,0);
     cd.textContent = `${m}:${sec}`;
-    if(s<=0){ clearInterval(interval); alert('Waktu habis'); document.querySelector('form').submit(); }
+    if(s<=0){
+        clearInterval(interval);
+        alert('Waktu habis');
+        document.querySelector('form').submit();
+    }
     s--;
 },1000);
 </script>
