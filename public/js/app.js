@@ -237,70 +237,129 @@ document.addEventListener('alpine:init', () => {
 
         },
 
-        async loadTable(tableId, keys, endpoint){
-            try{
+        async loadTable(tableId, keys, endpoint, columns = []) {
+            try {
                 const res = await fetch(endpoint);
-                if(!res.ok) throw new Error(await res.text());
+                if (!res.ok) throw new Error(await res.text());
                 const data = await res.json();
-                const rows = data.map(r=>this.buildRow(r, keys, endpoint.replace(this.baseUrl+'/',''), tableId));
+                const rows = data.map(r => this.buildRow(r, keys, endpoint.replace(this.baseUrl + '/', ''), tableId));
                 const tbl = $(`#${tableId}`);
-                if(this.tables[tableId]?.instance){
-                    const dt=this.tables[tableId].instance;
-                    dt.clear(); dt.rows.add(rows); dt.draw(); 
+        
+                // Jika sudah ada instance sebelumnya
+                if (this.tables[tableId]?.instance) {
+                    const dt = this.tables[tableId].instance;
+                    dt.clear();
+                    dt.rows.add(rows);
+                    dt.draw();
                     renderKaTeXInTable(tableId);
                     return;
                 }
+        
+                // Gunakan judul kolom dari parameter "columns"
                 const dt = tbl.DataTable({
-                    data:rows,
-                    columns: keys.map(k => ({
-                        title: k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),
-                        createdCell: function(td, cellData) {
+                    data: rows,
+                    columns: keys.map((k, i) => ({
+                        title: columns[i] ?? k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+                        createdCell: function (td, cellData) {
                             td.innerHTML = cellData;
                             if (typeof renderMathInElement !== 'undefined') {
                                 renderMathInElement(td, {
                                     delimiters: [
-                                        {left:'$$', right:'$$', display:true},
-                                        {left:'$', right:'$', display:false},
-                                        {left:'\\(', right:'\\)', display:false},
-                                        {left:'\\[', right:'\\]', display:true}
+                                        { left: '$$', right: '$$', display: true },
+                                        { left: '$', right: '$', display: false },
+                                        { left: '\\(', right: '\\)', display: false },
+                                        { left: '\\[', right: '\\]', display: true }
                                     ],
                                     throwOnError: false
                                 });
                             }
                         }
-                    })).concat([{title:'Aksi'}]),
-                    scrollX:true,
-                    searching:true,
-                    pageLength:10
+                    })).concat([{ title: columns[keys.length] ?? 'Aksi' }]),
+                    scrollX: true,
+                    searching: true,
+                    pageLength: 10
                 });
-                this.tables[tableId]={endpoint,instance:dt};
-            }catch(err){ console.error("DEBUG loadTable error:",err); this.toast("Gagal memuat data","red"); }
+        
+                this.tables[tableId] = { endpoint, instance: dt };
+        
+            } catch (err) {
+                console.error("DEBUG loadTable error:", err);
+                this.toast("Gagal memuat data", "red");
+            }
         },
+        
 
-        async save(endpoint, payload, id=null, tableId=null, opts={}) {
-            try{
-                let url=id && tableId !=='tableUser' ?`${this.baseUrl}/${endpoint}/${id}`:`${this.baseUrl}/${endpoint}`;
+        async save(endpoint, payload, id = null, tableId = null, opts = {},edit=true) {
+            try {
+                // Tentukan URL endpoint
+                let url;
+
+                if (id && edit && (tableId == 'tableUser' || tableId == 'tableExam')) {
+                    // Default: gunakan ID untuk update data biasa
+                    url = `${this.baseUrl}/${endpoint}/${id}`;
+                } else {
+                    // Untuk tableUser & tableExam — gunakan endpoint dasar tanpa ID
+                    url = `${this.baseUrl}/${endpoint}`;
+                }
+
+        
+                // Siapkan opsi fetch
+                const fetchOpts = {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': this.token }
+                };
+        
+                if (opts.isFormData) {
+                    fetchOpts.body = payload;
+                } else {
+                    fetchOpts.headers['Content-Type'] = 'application/json';
+                    fetchOpts.body = JSON.stringify(payload);
+                }
                 
-                const method='POST';
-                let fetchOpts={method, headers:{'X-CSRF-TOKEN':this.token}};
-                if(opts.isFormData) fetchOpts.body=payload;
-                else { fetchOpts.headers['Content-Type']='application/json'; fetchOpts.body=JSON.stringify(payload); }                         
-                const res = await fetch(url,fetchOpts);
+        
+                // Kirim request
+                const res = await fetch(url, fetchOpts);
                 const data = await res.json();
-                if(!res.ok){
-                    if(res.status===422){ this.toast(Object.values(data.errors).flat().join('\n'),'red'); return; }
-                    throw new Error(data.message||'Terjadi kesalahan');
+        
+                // Tangani error validasi atau lainnya
+                if (!res.ok) {
+                    if (res.status === 422) {
+                        this.toast(Object.values(data.errors).flat().join('\n'), 'red');
+                        return;
+                    }
+                    throw new Error(data.message || 'Terjadi kesalahan');
                 }
-                this.toast(id?'Data diperbarui!':'Data tersimpan!');
-                if (tableId === 'tableUser') {
-                    let route = (`${this.baseUrl}/${endpoint}`).replace(`/${id}/reset-password`,'');
-                    if(tableId) this.loadTable(tableId, JSON.parse(document.querySelector(`#${tableId}`).dataset.keys),route );
-                }else{
-
-                    if(tableId) this.loadTable(tableId, JSON.parse(document.querySelector(`#${tableId}`).dataset.keys), `${this.baseUrl}/${endpoint}`);
+        
+                // Notifikasi sukses
+                this.toast(id ? 'Data diperbarui!' : 'Data tersimpan!');
+        
+                // ===============================
+                // 🔁 Reload tabel jika diperlukan
+                // ===============================
+                if (tableId) {
+                    const tableEl = document.querySelector(`#${tableId}`);
+                    const keys = JSON.parse(tableEl.dataset.keys);
+        
+                    let route = `${this.baseUrl}/${endpoint}`;
+        
+                    if (tableId === 'tableUser') {
+                        route = route.replace(`/${id}/reset-password`, '');
+                    } 
+                    else if (tableId === 'tableExam') {
+                        // Hilangkan sub-route yang mungkin ada
+                        route = route.replace(`/${id}/members`, '')
+                                     .replace(`/${id}/questions`, '');
+                    }
+        
+                    this.loadTable(tableId, keys, route);
                 }
-            }catch(err){ console.error("DEBUG save error:",err); this.toast('Gagal menyimpan data','red'); }
+        
+            } catch (err) {
+                console.error('DEBUG save error:', err);
+                this.toast('Gagal menyimpan data', 'red');
+            }
         },
+        
 
         confirmDelete(id,endpoint,tableId){
             window.dispatchEvent(new CustomEvent('modal-confirm',{
@@ -372,7 +431,7 @@ document.addEventListener('alpine:init', () => {
                             const formData = new FormData();
                             
                             if(id) formData.append('_method', 'PUT'); // Laravel handle update
-                
+                            
                             if(endpoint === 'users') {
                                 formData.append('name', payload.name);
                                 formData.append('username', payload.username);
@@ -482,12 +541,16 @@ window.addExamMember = async function(examId){
         // Ambil user yang sudah jadi anggota
         const resMembers = await fetch(`/api/admin/exams/${examId}/members`);
         if(!resMembers.ok) throw new Error(await resMembers.text());
-        const existingMembers = await resMembers.json(); // contoh: [{id:1,name:'A'}, {id:3,name:'B'}]
+        const existingMembers = await resMembers.json();
         const selectedIds = existingMembers.map(m => String(m.id));
-        
-        // Opsi user
-        const userOptions = users.map(u => ({ value: String(u.id), label: u.name }));
 
+        // Buat opsi checkbox
+        const userOptions = users.map(u => ({
+            value: String(u.id),
+            label: u.name
+        }));
+
+        // Buka modal
         window.dispatchEvent(new CustomEvent('modal-form', {
             detail: {
                 title: 'Tambah Anggota Ujian',
@@ -495,13 +558,13 @@ window.addExamMember = async function(examId){
                     {
                         name: 'user_ids',
                         label: 'Pilih User',
-                        type: 'multi-select',
-                        value: selectedIds, // otomatis terpilih
+                        type: 'checkboxes', // 🧩 ubah ke checkboxes
+                        value: selectedIds, // yang sudah ada, otomatis tercentang
                         options: userOptions
                     }
                 ],
                 onSubmit: (payload) => {
-                    CRUD.save(`exams/${examId}/members`, payload, null, null);
+                    CRUD.save(`exams/${examId}/members`, payload, examId, 'tableExam',{},false);
                 }
             }
         }));
@@ -530,22 +593,18 @@ window.addExamQuestion = async function(examId){
         const existingQuestions = await resExisting.json(); 
         const selectedIds = existingQuestions.map(q => String(q.id));
 
-        // Bangun opsi soal dengan gambar
-        const questionOptions = questions.map(q => {
-            const imgUrl = q.question_text ? `${baseUrl}/${q.question_text}` : null;
-            const label = imgUrl 
-                ? `<div class="flex items-center gap-2">
-                     <img src="${imgUrl}" alt="Soal #${q.id}" class="w-12 h-12 object-contain rounded border">
-                     <span>#${q.id} - ${q.category?.name || 'Tanpa Kategori'}</span>
-                   </div>`
-                : `#${q.id} - ${q.category?.name || 'Tanpa Kategori'}`;
+        // Bangun opsi checkbox + gambar
+        const questionOptions = questions.map((q,i) => {
+            const imgUrl = q.question_text ? `${baseUrl}/${q.question_text}` : null; // pastikan field gambar benar
+            const label = `#${i+1} - ${q.category?.name || 'Tanpa Kategori'}`;
             return {
                 value: String(q.id),
-                label: label
+                label: label,
+                img: imgUrl
             };
         });
 
-        // Tampilkan modal form
+        // Tampilkan modal form dengan tipe custom
         window.dispatchEvent(new CustomEvent('modal-form', {
             detail: {
                 title: 'Tambah Soal ke Ujian',
@@ -553,14 +612,13 @@ window.addExamQuestion = async function(examId){
                     {
                         name: 'question_ids',
                         label: 'Pilih Soal (dengan gambar)',
-                        type: 'multi-select',
-                        value: selectedIds,
-                        options: questionOptions,
-                        allowHtml: true
+                        type: 'checkboxes-with-preview', // 🔥 pakai tipe baru
+                        value: selectedIds, // otomatis tercentang
+                        options: questionOptions
                     }
                 ],
                 onSubmit: (payload) => {
-                    CRUD.save(`exams/${examId}/questions`, payload, null, null);
+                    CRUD.save(`exams/${examId}/questions`, payload, examId, 'tableExam',{},false);
                 }
             }
         }));
@@ -571,21 +629,6 @@ window.addExamQuestion = async function(examId){
     }
 };
 
-window.updatePreview = function(input) {
-    const file = input.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = e => {
-        // cari elemen img terdekat dengan input ini
-        const preview = input.closest('div')?.querySelector('img.preview');
-        if (preview) {
-            preview.src = e.target.result;
-            preview.classList.remove('hidden');
-        }
-    };
-    reader.readAsDataURL(file);
-};
 
 
 window.addEventListener('alpine:init', () => {
@@ -630,5 +673,6 @@ window.addEventListener('alpine:init', () => {
       }
     }));
   });
+  
 
 });

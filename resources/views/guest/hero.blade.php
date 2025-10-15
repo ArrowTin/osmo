@@ -11,8 +11,8 @@
       <p class="mb-4 text-gray-600">2. Rudy Hartono</p>
       <h6 class=" font-extrabold leading-tight">Universitas Katolik Santo Agustinus Hippo</h6>
       <div class="mt-8 flex gap-3">
-        <a href="{{route('login')}}" class="px-5 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">Mulai</a>
-        <a href="#about" class="px-5 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-100">Learn More</a>
+        {{-- <a href="{{route('login')}}" class="px-5 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">Mulai</a> --}}
+        <a href="#about" class="px-5 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-100">Mulai</a>
       </div>
     </div>
   </section>

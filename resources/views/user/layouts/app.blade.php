@@ -13,9 +13,9 @@
             <div class="flex justify-between items-center h-14">
                 
                 {{-- Logo / Brand --}}
-                <a href="{{ route('students.dashboard') }}" 
+                <a href="{{ route('welcome') }}" 
                    class="text-xl font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
-                   {{env('APP_NAME')}}<span class="text-gray-700">System</span>
+                   {{env('APP_NAME')}}<span class="text-gray-700">USA</span>
                 </a>
     
                 {{-- Menu utama (desktop) --}}

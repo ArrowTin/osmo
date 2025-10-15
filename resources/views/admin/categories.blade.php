@@ -11,8 +11,8 @@
 <section class="bg-white dark:bg-gray-800 rounded shadow p-4">
     <x-datatable 
         id="tableCat" 
-        :keys="['name', 'slug']"
-        :columns="['Nama', 'Slug', 'Aksi']"
+        :keys="['name']"
+        :columns="['Nama', 'Aksi']"
     />
 
 </section>

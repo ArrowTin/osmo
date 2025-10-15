@@ -50,14 +50,14 @@ class ExamController extends Controller
     public function attachQuestion(Request $request, Exam $exam)
     {
         $request->validate(['question_ids' => 'required|array', 'question_ids.*' => 'exists:questions,id']);
-        $exam->questions()->syncWithoutDetaching($request->question_ids);
+        $exam->questions()->sync($request->question_ids);
         return response()->json(['success' => true]);
     }
 
     public function attachUser(Request $request, Exam $exam)
     {
         $request->validate(['user_ids' => 'required|array', 'user_ids.*' => 'exists:users,id']);
-        $exam->users()->syncWithoutDetaching($request->user_ids);
+        $exam->users()->sync($request->user_ids);
         return response()->json(['success' => true]);
     }
 

@@ -20,7 +20,7 @@
             <!-- Link ke detail ujian (pengerjaan) -->
             <a href="{{ route('students.ujian.kerjakan', $u->id) }}"
                class="flex-1 text-center bg-indigo-600 text-white px-3 py-2 rounded hover:bg-indigo-700 transition">
-                Detail Ujian
+                Mulai Ujian
             </a>
 
             <!-- Link ke rangking ujian ini -->

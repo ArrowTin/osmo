@@ -27,5 +27,7 @@
   {{-- Footer --}}
   @include('guest.footer')
 
+  @stack('scripts')
+
 </body>
 </html>

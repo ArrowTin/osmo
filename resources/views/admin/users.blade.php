@@ -59,7 +59,7 @@ function resetPassword(id) {
                     }
                     CRUD.save(`users/${id}/reset-password`, { password: payload.password }, id, 'tableUser', {
                         method: 'POST'
-                    });
+                    },false);
                 }
             }
         }));

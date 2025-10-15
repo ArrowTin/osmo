@@ -98,6 +98,84 @@
               </div>
             </template>
 
+            <!-- CHECKBOXES -->
+            <template x-if="field.type === 'checkboxes'">
+              <div class="space-y-2">
+                <template x-for="opt in field.options" :key="opt.value">
+                  <label class="flex items-center space-x-2 cursor-pointer">
+                    <input type="checkbox"
+                          class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded"
+                          :value="opt.value"
+                          x-model="field.value"
+                    />
+                    <span x-text="opt.label"></span>
+                  </label>
+                </template>
+              </div>
+            </template>
+
+            <!-- CHECKBOXES WITH PREVIEW -->
+            <template x-if="field.type === 'checkboxes-with-preview'">
+              <div 
+                x-data="{
+                  showModal: false,
+                  modalImage: '',
+                  openModal(src) { this.modalImage = src; this.showModal = true },
+                  closeModal() { this.showModal = false; this.modalImage = '' }
+                }"
+                class="space-y-3"
+              >
+                <template x-for="opt in field.options" :key="opt.value">
+                  <div class="flex items-start space-x-3 border rounded p-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <input 
+                      type="checkbox" 
+                      class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded mt-1"
+                      :value="opt.value"
+                      x-model="field.value"
+                    />
+
+                    <div class="flex flex-col space-y-1 flex-1">
+                      <span class="font-medium text-sm" x-text="opt.label"></span>
+
+                      <template x-if="opt.img">
+                        <img 
+                          :src="opt.img" 
+                          alt="Preview" 
+                          class="w-24 h-24 object-cover rounded border cursor-zoom-in hover:opacity-80 transition"
+                          @click="openModal(opt.img)"
+                        />
+                      </template>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- Modal Preview -->
+                <template x-if="showModal">
+                  <div 
+                    class="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+                    @click.self="closeModal"
+                  >
+                    <div class="relative">
+                      <button 
+                        @click="closeModal"
+                        class="absolute -top-4 -right-4 bg-red-600 text-white rounded-full px-2 py-1 text-sm hover:bg-red-700"
+                      >
+                        ✕
+                      </button>
+                      <img 
+                        :src="modalImage" 
+                        class="max-w-[90vw] max-h-[80vh] rounded-lg shadow-lg border-2 border-white object-contain"
+                      />
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </template>
+
+
+        
+
+
             <!-- SELECT & MULTI-SELECT -->
             <div 
               x-data="imagePreviewer(field)" 

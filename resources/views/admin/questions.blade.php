@@ -21,12 +21,13 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // const tableEl = document.querySelector('#tableSoal');
-        // const keys = JSON.parse(tableEl.dataset.keys);
-    
-        window.CRUD.loadTable('tableSoal',  ['question_text','options','correct_answer','explanation','category.name'], '/api/admin/questions');
-    });
+document.addEventListener('DOMContentLoaded', () => {
+    const keys = ['question_text','options','correct_answer','explanation','category.name'];
+    const columns = ['Soal','Opsi Jawaban','Jawaban Benar','Penjelasan','Kategori','Aksi'];
+    window.CRUD.loadTable('tableSoal', keys, '/api/admin/questions', columns);
+});
+</script>
+
 </script>
 <script>
 async function addQuestion() {

@@ -16,18 +16,25 @@
 
     <!-- Menu utama -->
     <ul id="menu" class="hidden sm:flex gap-6 text-sm">
-      <li><a href="#home" class="hover:text-indigo-600">Home</a></li>
-      <li><a href="#about" class="hover:text-indigo-600">About</a></li>
-      <li><a href="#cta" class="hover:text-indigo-600">Get Started</a></li>
+      <li><a href="{{!auth()->check() ? route('welcome'):route('dashboard')}}" class="hover:text-indigo-600">Home</a></li>
+      <li><a href="{{route('leaderboard')}}" class="hover:text-indigo-600">Leaderboard</a></li>
+      <li><a href="{{route('instruction')}}" class="hover:text-indigo-600">Petunjuk</a></li>
+      <li>
+        <a href="#cta" 
+           class="hover:text-indigo-600" 
+           style="{{ auth()->check() ? 'display:none;' : '' }}">
+          Login
+        </a>
+      </li>
     </ul>
   </nav>
 
   <!-- Menu dropdown di mobile -->
   <div id="mobile-menu" class="sm:hidden hidden border-t bg-white/90 backdrop-blur">
     <ul class="flex flex-col px-4 py-2 text-sm space-y-2">
-      <li><a href="#home" class="block py-2 hover:text-indigo-600">Home</a></li>
-      <li><a href="#about" class="block py-2 hover:text-indigo-600">About</a></li>
-      <li><a href="#cta" class="block py-2 hover:text-indigo-600">Get Started</a></li>
+      <li><a href="{{auth()->check()?route('welcome'):route('dashboard')}}" class="block py-2 hover:text-indigo-600">Home</a></li>
+      <li><a href="{{route('leaderboard')}}" class="block py-2 hover:text-indigo-600">Leaderboard</a></li>
+      <li><a href="{{route('instruction')}}" class="block py-2 hover:text-indigo-600">Petunjuk</a></li>
     </ul>
   </div>
 </header>
