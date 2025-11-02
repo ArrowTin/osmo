@@ -294,11 +294,9 @@ document.addEventListener('alpine:init', () => {
                 // Tentukan URL endpoint
                 let url;
 
-                if (id && edit && (tableId == 'tableUser' || tableId == 'tableExam')) {
-                    // Default: gunakan ID untuk update data biasa
+                if (edit) {
                     url = `${this.baseUrl}/${endpoint}/${id}`;
                 } else {
-                    // Untuk tableUser & tableExam — gunakan endpoint dasar tanpa ID
                     url = `${this.baseUrl}/${endpoint}`;
                 }
 

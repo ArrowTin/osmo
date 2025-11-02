@@ -5,6 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title','User Panel')</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <!-- MathLive -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mathlive@0.107.1/mathlive-fonts.css">
+    <script src="https://cdn.jsdelivr.net/npm/mathlive@0.107.1/mathlive.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mathlive@0.107.1/mathlive-fonts.css">
+
+
+
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.body, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });
+    });
+</script>
 </head>
 <body class="bg-gray-100 text-gray-800">
     <!-- Navbar -->

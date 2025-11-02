@@ -13,7 +13,7 @@
             [
                 'icon' => asset('img/help.png'),
                 'title' => 'Bantuan',
-                'desc' => 'Pelajari konsep dasar seperti aljabar, geometri, dan trigonometri dengan penjelasan visual yang mudah dimengerti.'
+                'desc' => 'Pelajari konsep dasar matematika seperti Eksponen, Aljabar, Geometri dan lain-lain dengan penjelasan visual yang mudah dimengerti.'
             ],
             [
                 'icon' => asset('img/game.png'),

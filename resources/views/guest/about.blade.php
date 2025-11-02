@@ -11,7 +11,7 @@
               'icon' => asset('img/help.png'),
               'title' => 'Bantuan',
               'link' => route('instruction'),
-              'desc' => 'Pelajari konsep dasar seperti aljabar, geometri, dan trigonometri dengan penjelasan visual yang mudah dimengerti.'
+              'desc' => 'Tombol bantuan ini berisikan informasi petunjuk tentang penggunaan aplikasi yang akan membantu kamu dalam memahami aplikasi OSMO USA.'
             ],
             [
               'icon' => asset('img/game.png'),

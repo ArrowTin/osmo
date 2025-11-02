@@ -38,7 +38,7 @@
                 @if(Str::endsWith($opsi, ['.jpg','.png','.jpeg','.gif']))
                     <img src="{{ Storage::url($opsi) }}" class="w-40 rounded inline-block align-middle">
                 @else
-                    <span>{!! $opsi !!}</span>
+                    <span class="option-content">{!! $opsi !!}</span>
                 @endif
 
                 {{-- Label tambahan --}}
@@ -72,4 +72,86 @@
         Kembali ke Daftar Ujian
     </a>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    
+        // === ✅ Fungsi render aman untuk KaTeX ===
+        const safeRender = (el) => {
+            if (typeof renderMathInElement === 'function') {
+                try {
+                    renderMathInElement(el, {
+                        delimiters: [
+                            { left: "$$", right: "$$", display: true },
+                            { left: "$", right: "$", display: false },
+                            { left: "\\(", right: "\\)", display: false },
+                            { left: "\\[", right: "\\]", display: true }
+                        ],
+                    });
+                } catch (e) {
+                    console.error('KaTeX render error:', e);
+                }
+            } else {
+                console.warn('renderMathInElement() belum tersedia.');
+            }
+        };
+    
+        // === 🧹 Fungsi sanitasi LaTeX (fix umum + khusus bigm error) ===
+        const fixLatex = (str) => {
+            if (!str) return '';
+            return str
+                .replace(/\r?\n/g, '') // hapus newline
+                // Hapus spasi yang aneh di dalam ekspresi matematika
+                .replace(/\^\s+/g, '^')
+                .replace(/_\s+/g, '_')
+                // Perbaiki kesalahan umum \bigm{|} dan sejenisnya
+                .replace(/\\bigm\{\|/g, '\\bigm\\|')
+                .replace(/\\Bigm\{\|/g, '\\Bigm\\|')
+                .replace(/\\bigl\{\|/g, '\\bigl\\|')
+                .replace(/\\bigr\{\|/g, '\\bigr\\|')
+                .replace(/\\Bigl\{\|/g, '\\Bigl\\|')
+                .replace(/\\Bigr\{\|/g, '\\Bigr\\|')
+                // Hapus kurung kurawal penutup yang tersisa tanpa pasangan setelah \bigm\|
+                .replace(/\\bigm\\\|\}/g, '\\Big|')
+                .replace(/\\Bigm\\\|\}/g, '\\Big|')
+                // Ubah \bigm\| menjadi \Big| agar lebih kompatibel
+                .replace(/\\bigm\\\|/g, '\\Big|')
+                .replace(/\\Bigm\\\|/g, '\\Big|')
+                // Trim spasi berlebih
+                .replace(/\s+/g, ' ')
+                .trim();
+        };
+    
+        // === 🔍 Tangani semua elemen opsi yang mungkin berisi LaTeX ===
+        const opsiElems = document.querySelectorAll('.option-content');
+    
+        opsiElems.forEach(el => {
+            let html = el.innerHTML.trim();
+            if (!html) return;
+    
+            // Perbaiki kesalahan umum LaTeX
+            html = fixLatex(html);
+    
+            // Deteksi apakah sudah memiliki delimiter math
+            const hasDelimiter = /(\$.*\$|\\\[.*\\\]|\\\(.*\\\)|\$\$[\s\S]*\$\$)/m.test(html);
+    
+            // Deteksi apakah terlihat seperti formula
+            const looksLikeTex = /\\[a-zA-Z]|[_\^]|\\frac|\\left|\\right|\{.*\}/.test(html);
+    
+            if (!hasDelimiter && looksLikeTex) {
+                if (!el.dataset.katexWrapped) {
+                    el.innerHTML = `$${html}$`;
+                    el.dataset.katexWrapped = '1';
+                }
+            } else {
+                el.innerHTML = html;
+            }
+        });
+    
+        // === 🎨 Render semua konten setelah diformat ===
+        safeRender(document.body);
+    
+       
+    });
+    </script>
 @endsection

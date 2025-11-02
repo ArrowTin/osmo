@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/','welcome')->name('welcome');
 
-Route::middleware('guest')->group(function () {
+Route::middleware('web')->group(function () {
     Route::get('/leaderboard', [GuestController::class, 'leaderboard'])->name('leaderboard');
     Route::view('/instruction', 'guest.instruction')->name('instruction');
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
